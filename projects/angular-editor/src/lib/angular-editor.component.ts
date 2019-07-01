@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {AngularEditorConfig, angularEditorConfig} from './config';
+import {AngularEditorConfig, angularEditorConfig, AngularEditorCustomButtonSet} from './config';
 import {AngularEditorToolbarComponent} from './angular-editor-toolbar.component';
 import {AngularEditorService} from './angular-editor.service';
 import {DOCUMENT} from '@angular/common';
@@ -39,7 +39,8 @@ export class AngularEditorComponent implements OnInit, ControlValueAccessor, Aft
   showPlaceholder = false;
   @Input() id = '';
   @Input() config: AngularEditorConfig = angularEditorConfig;
-
+  public get customButtons(): AngularEditorCustomButtonSet[] { return this.config == null || this.config.customButtons == null ? [] : this.config.customButtons; }
+  
   @Output() html;
 
   @ViewChild('editor') textArea: any;
@@ -54,6 +55,8 @@ export class AngularEditorComponent implements OnInit, ControlValueAccessor, Aft
   /** emits `focus` event when focused in to the textarea */
   @Output() focus: EventEmitter<string> = new EventEmitter<string>();
 
+  @Output() commandInterceptor = new EventEmitter<any>(true);
+
   constructor(private _renderer: Renderer2, private editorService: AngularEditorService, @Inject(DOCUMENT) private _document: any) {
   }
 
@@ -63,6 +66,7 @@ export class AngularEditorComponent implements OnInit, ControlValueAccessor, Aft
     this.editorToolbar.customClasses = this.config.customClasses;
     this.editorToolbar.uploadUrl = this.config.uploadUrl;
     this.editorService.uploadUrl = this.config.uploadUrl;
+    this.editorToolbar.disableImageUpload = this.config.disableImageUpload;
     if (this.config.showToolbar !== undefined) {
       this.editorToolbar.showToolbar = this.config.showToolbar;
     }
@@ -95,14 +99,24 @@ export class AngularEditorComponent implements OnInit, ControlValueAccessor, Aft
    * @param command string from triggerCommand
    */
   executeCommand(command: string) {
-    if (command === 'toggleEditorMode') {
-      this.toggleEditorMode(this.modeVisual);
-    } else if (command !== '') {
-      this.editorService.executeCommand(command);
-      this.exec();
+    
+    function handleCommand(self) {
+      if (command === 'toggleEditorMode') {
+        self.toggleEditorMode(self.modeVisual);
+      } else if (command !== '') {
+        self.editorService.executeCommand(command);
+        self.exec();
+      }
+      self.onEditorFocus();
     }
 
-    this.onEditorFocus();
+    if (this.commandInterceptor != null) {
+      let self = this;
+      this.commandInterceptor.emit({ command: command, editorService: this.editorService, next: (cmd: string) => handleCommand(self) });
+    }
+    else {
+      handleCommand(this);
+    }
   }
 
   /**

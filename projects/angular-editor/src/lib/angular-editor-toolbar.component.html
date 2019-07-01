@@ -131,13 +131,15 @@
             title="Unlink" [disabled]="htmlMode" tabindex="-1">
       <i class="fa fa-chain-broken"></i>
     </button>
-    <input
-      style="display: none"
-      accept="image/*"
-      type="file" (change)="onFileChanged($event)"
-      #fileInput>
-    <button type="button" class="angular-editor-button" (click)="fileInput.click()" title="Insert Image"
-            [disabled]="htmlMode" tabindex="-1"><i class="fa fa-image"></i></button>
+    <ng-container *ngIf="!disableImageUpload">
+      <input
+        style="display: none"
+        accept="image/*"
+        type="file" (change)="onFileChanged($event)"
+        #fileInput>
+      <button type="button" class="angular-editor-button" (click)="fileInput.click()" title="Insert Image"
+              [disabled]="htmlMode" tabindex="-1"><i class="fa fa-image"></i></button>
+    </ng-container>
     <button type="button" title="Horizontal Line" class="angular-editor-button"
             (click)="triggerCommand('insertHorizontalRule')" [disabled]="htmlMode" tabindex="-1"><i class="fa fa-minus"></i></button>
   </div>
@@ -145,6 +147,16 @@
     <button type="button" title="Clear Formatting" class="angular-editor-button"
             (click)="triggerCommand('removeFormat')" [disabled]="htmlMode" tabindex="-1"><i class='fa fa-remove'></i></button>
   </div>
+  <ng-container *ngFor="let buttonSet of customButtons">
+    <ng-container *ngIf="buttonSet.buttons != null && buttonSet.buttons.length > 0">
+      <div class="angular-editor-toolbar-set">
+        <ng-container *ngFor="let button of buttonSet.buttons">
+            <button type="button" title="{{button.title}}" class="angular-editor-button"
+                    (click)="triggerCommand('custom_' + button.commandName)" [disabled]="button.disabled()" tabindex="-1"><i class='{{button.iconClass}}'></i></button>
+        </ng-container>
+      </div>
+    </ng-container>
+  </ng-container>
   <div class="angular-editor-toolbar-set">
     <button [id]="'toggleEditorMode-'+id" type="button" title="HTML Code" class="angular-editor-button"
             (click)="triggerCommand('toggleEditorMode')" tabindex="-1"><i class='fa fa-code'></i></button>

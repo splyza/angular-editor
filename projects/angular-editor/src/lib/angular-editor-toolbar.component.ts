@@ -1,8 +1,8 @@
-import {Component, ElementRef, EventEmitter, Inject, Output, Renderer2, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Inject, Output, Renderer2, ViewChild, Input} from '@angular/core';
 import {AngularEditorService} from './angular-editor.service';
 import {HttpResponse} from '@angular/common/http';
 import {DOCUMENT} from '@angular/common';
-import {CustomClass, Font} from './config';
+import {CustomClass, Font, AngularEditorCustomButtonSet} from './config';
 
 @Component({
   selector: 'angular-editor-toolbar',
@@ -24,6 +24,7 @@ export class AngularEditorToolbarComponent {
   customClassId = -1;
   customClasses: CustomClass[];
   uploadUrl: string;
+  disableImageUpload: boolean;
 
   tagMap = {
     BLOCKQUOTE: 'indent',
@@ -35,6 +36,7 @@ export class AngularEditorToolbarComponent {
   buttons = ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'justifyLeft', 'justifyCenter',
     'justifyRight', 'justifyFull', 'indent', 'outdent', 'insertUnorderedList', 'insertOrderedList', 'link'];
 
+  @Input() public customButtons: AngularEditorCustomButtonSet[] = [];
   @Output() execute: EventEmitter<string> = new EventEmitter<string>();
 
   @ViewChild('fileInput') myInputFile: ElementRef;

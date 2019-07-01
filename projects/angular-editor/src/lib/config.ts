@@ -1,3 +1,15 @@
+
+export interface AngularEditorCustomButtonSet {
+  buttons: AngularEditorCustomButton[];
+}
+
+export interface AngularEditorCustomButton {
+  iconClass: string;
+  title: string;
+  commandName: string;
+	disabled: () => boolean;
+}
+
 export interface CustomClass {
   name: string;
   class: string;
@@ -27,6 +39,8 @@ export interface AngularEditorConfig {
   uploadUrl?: string;
   fonts?: Font[];
   customClasses?: CustomClass[];
+  customButtons: AngularEditorCustomButtonSet[];
+  disableImageUpload?: boolean;
 }
 
 export const angularEditorConfig: AngularEditorConfig = {
@@ -51,4 +65,6 @@ export const angularEditorConfig: AngularEditorConfig = {
     {class: 'comic-sans-ms', name: 'Comic Sans MS'}
   ],
   uploadUrl: 'v1/image',
+  customButtons: [],
+  disableImageUpload: false
 };
